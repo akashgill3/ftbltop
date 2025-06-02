@@ -3,7 +3,8 @@ use std::time::Duration;
 use ratatui::{
     Frame,
     crossterm::event::{self, Event, KeyCode},
-    widgets::Paragraph,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    widgets::{Block, Paragraph},
 };
 
 #[derive(Debug, Default)]
@@ -50,10 +51,46 @@ fn main() -> color_eyre::Result<()> {
 }
 
 fn view(model: &mut Model, frame: &mut Frame) {
+    let area = frame.area();
+
+    let center_area = centered_rect(50, 50, area); // 60% width, 40% height
+
     frame.render_widget(
-        Paragraph::new(format!("Counter: {}", model.counter)),
-        frame.area(),
+        Paragraph::new(format!("Counter: {}", model.counter)).block(
+            Block::bordered()
+                .title("ftbltop")
+                .title_alignment(Alignment::Center),
+        ),
+        center_area,
     );
+    frame.render_widget(
+        Paragraph::new(format!("Counter: {}", model.counter)).block(
+            Block::bordered()
+                .title("ftbltop")
+                .title_alignment(Alignment::Center),
+        ),
+        center_area,
+    );
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage((100 - percent_y) / 2),
+            Constraint::Percentage(percent_y),
+            Constraint::Percentage((100 - percent_y) / 2),
+        ])
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage((100 - percent_x) / 2),
+            Constraint::Percentage(percent_x),
+            Constraint::Percentage((100 - percent_x) / 2),
+        ])
+        .split(popup_layout[1])[1]
 }
 
 /// Convert Event to Message
